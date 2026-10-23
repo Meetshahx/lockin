@@ -1,0 +1,334 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body><title>LockIn</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one phone-sized app column, centred on desktop, full width on phones; a step rail beside it on wide screens */
+:root{
+--ground:#E9ECF4;      /* page behind the phone */
+--paper:#FFFFFF;       /* app surface */
+--ink:#151B33;         /* text + dark surfaces */
+--muted:#5E6584;       /* secondary text */
+--line:#DCE0EC;        /* hairlines */
+--lock:#F2A23A;        /* the "locked" amber — brand accent */
+--lock-soft:#FFF1DC;
+--ok:#1E9E6A; --ok-soft:#E3F6EE;
+--warn:#C2410C; --warn-soft:#FDEBE1;
+--wa:#E7F8D8;          /* WhatsApp bubble */
+--display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+--body:"Figtree",ui-sans-serif,system-ui,-apple-system,sans-serif;
+color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--ground);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;
+padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px}
+.wrap{display:flex;gap:32px;justify-content:center;align-items:flex-start;max-width:1000px;margin:0 auto}
+.rail{width:260px;flex:none;position:sticky;top:24px}
+.rail h1{font-family:var(--display);font-weight:800;font-size:30px;letter-spacing:-.02em;margin:0 0 4px}
+.rail p{color:var(--muted);margin:0 0 20px;font-size:14px}
+.steps{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px}
+.steps button{all:unset;cursor:pointer;display:flex;gap:10px;align-items:center;padding:8px 10px;border-radius:10px;font-size:14px;color:var(--muted);width:100%;box-sizing:border-box}
+.steps button .n{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:12px;font-weight:700;flex:none}
+.steps button[aria-current="step"]{background:var(--paper);color:var(--ink);font-weight:600}
+.steps button[aria-current="step"] .n{background:var(--ink);border-color:var(--ink);color:#fff}
+.steps button:focus-visible{outline:2px solid var(--lock)}
+.who{margin-top:20px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.who b{display:block;text-transform:none;letter-spacing:0;font-size:14px;color:var(--ink);margin-top:4px;font-weight:600}
+.phone{width:390px;max-width:100%;min-width:0;background:var(--paper);border-radius:28px;box-shadow:0 20px 50px -20px rgba(21,27,51,.35);overflow:hidden;display:flex;flex-direction:column;min-height:720px}
+.bar{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line)}
+.bar .back{all:unset;cursor:pointer;font-size:20px;line-height:1;padding:2px 6px;border-radius:6px}
+.bar .back:focus-visible{outline:2px solid var(--lock)}
+.bar .t{font-weight:700;font-size:15px}
+.bar .role{margin-left:auto;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 8px;border-radius:999px;background:var(--lock-soft);color:#8A5300}
+.bar .role.friend{background:#E6ECFF;color:#2C3E9E}
+.screen{padding:20px 18px 24px;display:flex;flex-direction:column;gap:16px;flex:1}
+.screen[hidden]{display:none!important}
+h2{font-family:var(--display);font-weight:800;font-size:26px;line-height:1.1;letter-spacing:-.02em;margin:0;text-wrap:balance}
+.sub{color:var(--muted);margin:-6px 0 0;font-size:14px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.field input,.field select{font:inherit;padding:11px 12px;border:1.5px solid var(--line);border-radius:12px;background:var(--paper);color:var(--ink);width:100%}
+.field input:focus,.field select:focus{outline:none;border-color:var(--ink)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.hint{font-size:13px;color:var(--muted);background:var(--ground);padding:10px 12px;border-radius:12px}
+.btn{all:unset;box-sizing:border-box;cursor:pointer;text-align:center;font-weight:700;padding:14px 16px;border-radius:14px;background:var(--ink);color:#fff;font-size:15px;width:100%}
+.btn.lock{background:var(--lock);color:var(--ink)}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn.small{width:auto;padding:7px 12px;font-size:13px;border-radius:10px}
+.btn:focus-visible{outline:3px solid var(--lock);outline-offset:2px}
+.btn[disabled]{opacity:.45;cursor:default}
+.spacer{flex:1}
+/* WhatsApp mock */
+.wa{background:#EFE7DD;border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.wa .grp{font-size:12px;font-weight:700;color:#3B4A3A;text-align:center}
+.msg{background:#fff;border-radius:10px;padding:8px 10px;max-width:85%;font-size:14px}
+.msg .from{font-size:12px;font-weight:700;color:#8A5300}
+.msg.me{align-self:flex-end;background:var(--wa)}
+.msg.poll{font-size:13px}
+.msg .opt{display:flex;justify-content:space-between;border-top:1px solid #eee;padding-top:4px;margin-top:4px}
+.card{border:1.5px solid var(--line);border-radius:14px;overflow:hidden;background:var(--paper)}
+.card .top{background:var(--ink);color:#fff;padding:12px 14px}
+.card .top b{font-family:var(--display);font-size:18px;display:block}
+.card .top span{font-size:12px;opacity:.75}
+.card .bot{padding:10px 14px;font-size:13px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+/* trip hero for friend */
+.trip{background:var(--ink);color:#fff;border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:10px}
+.trip .k{font-size:11px;letter-spacing:.08em;text-transform:uppercase;opacity:.7}
+.trip h3{font-family:var(--display);font-size:24px;margin:0;line-height:1.1}
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.facts div{background:rgba(255,255,255,.08);border-radius:10px;padding:8px}
+.facts b{display:block;font-size:15px;font-variant-numeric:tabular-nums}
+.facts small{font-size:11px;opacity:.7}
+.rules{display:flex;flex-direction:column;gap:10px}
+.rule{display:flex;gap:10px;font-size:14px}
+.rule i{font-style:normal;width:26px;height:26px;border-radius:8px;display:grid;place-items:center;flex:none;font-weight:800;font-size:13px}
+.rule.a i{background:var(--ok-soft);color:var(--ok)}
+.rule.b i{background:var(--lock-soft);color:#8A5300}
+.rule.c i{background:var(--warn-soft);color:var(--warn)}
+/* meter */
+.meter{display:flex;flex-direction:column;gap:8px}
+.meter .big{font-family:var(--display);font-weight:800;font-size:44px;line-height:1;font-variant-numeric:tabular-nums}
+.meter .big small{font-size:18px;color:var(--muted);font-weight:600}
+.slots{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.slot{height:10px;border-radius:5px;background:var(--line);transition:background .4s}
+.slot.on{background:var(--lock)}
+.slot.done{background:var(--ok)}
+.clock{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.people{display:flex;flex-direction:column;border:1.5px solid var(--line);border-radius:14px;overflow:hidden}
+.p{display:flex;align-items:center;gap:10px;padding:10px 12px;border-top:1px solid var(--line);font-size:14px}
+.p:first-child{border-top:0}
+.av{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:12px;background:var(--ground);flex:none}
+.p .nm{flex:1;min-width:0}
+.p .nm small{display:block;color:var(--muted);font-size:12px}
+.chip{font-size:11px;font-weight:700;padding:4px 8px;border-radius:999px;white-space:nowrap}
+.chip.locked{background:var(--lock-soft);color:#8A5300}
+.chip.soft{background:var(--warn-soft);color:var(--warn)}
+.chip.ok{background:var(--ok-soft);color:var(--ok)}
+.contrast{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.contrast div{border-radius:12px;padding:10px;font-size:12px}
+.contrast b{display:block;font-family:var(--display);font-size:22px;font-variant-numeric:tabular-nums}
+.contrast .x{background:var(--ground);color:var(--muted)}
+.contrast .y{background:var(--lock-soft)}
+/* success */
+.on-banner{background:var(--ok);color:#fff;border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:6px}
+.on-banner b{font-family:var(--display);font-size:28px;line-height:1.05}
+.stay{display:flex;gap:12px;border:1.5px solid var(--line);border-radius:14px;padding:12px;align-items:center;cursor:pointer}
+.stay input{accent-color:var(--ink);width:18px;height:18px}
+.stay .nm{flex:1;min-width:0}
+.stay .nm small{display:block;color:var(--muted);font-size:12px}
+.stay .pr{font-weight:700;font-variant-numeric:tabular-nums}
+.stay:has(input:checked){border-color:var(--ink)}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;max-width:calc(100% - 32px)}
+.toast.show{opacity:1}
+.sheet{background:var(--ground);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.upi{display:flex;align-items:center;gap:10px;font-size:14px}
+.upi .logo{width:36px;height:36px;border-radius:10px;background:var(--ink);color:#fff;display:grid;place-items:center;font-weight:800;font-size:12px}
+.tick{width:64px;height:64px;border-radius:50%;background:var(--ok);color:#fff;display:grid;place-items:center;font-size:32px;margin:8px auto 0}
+.center{text-align:center}
+.note{font-size:12px;color:var(--muted);text-align:center}
+@media (max-width:760px){.rail{display:none}.wrap{gap:0}.phone{min-height:0;border-radius:20px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.stepno{font-size:11px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
+.pulse{animation:pulse 1.4s ease-in-out infinite;border-color:var(--lock)!important;background:var(--lock-soft)!important}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(242,162,58,.55)}50%{box-shadow:0 0 0 6px rgba(242,162,58,0)}}
+.scapia{display:flex;align-items:center;gap:10px;border:1.5px dashed var(--line);border-radius:14px;padding:10px 12px;font-size:13px}
+.scapia .cardart{width:44px;height:28px;border-radius:5px;background:linear-gradient(135deg,#2B2F6B,#7A4DD8);flex:none}
+@keyframes pop{0%{transform:scale(.6);opacity:0}100%{transform:scale(1);opacity:1}}
+.pop{animation:pop .35s ease-out both}
+</style>
+<div class="wrap">
+<aside class="rail">
+<h1>LockIn</h1>
+<p>Turn "I'm in" into money on the table, so the organiser books early without fronting cash.</p>
+<ul class="steps" id="steps"></ul>
+<div class="who">Designed for<b>The organiser of a friends' weekend trip</b></div>
+</aside>
+<main class="phone" aria-live="polite">
+<div class="bar">
+<button class="back" id="back" aria-label="Back">‹</button>
+<span class="t" id="barTitle">New trip</span>
+<span class="stepno" id="stepno">1/6</span>
+<span class="role" id="role">Organiser</span>
+</div>
+<!-- 1 CREATE -->
+<section class="screen" id="s1">
+<h2>Lock the trip before you book it</h2>
+<p class="sub">Everyone puts in their share first. You book only when enough people have.</p>
+<div class="field"><label for="dest">Trip</label><input id="dest" value="Gokarna weekend"></div>
+<div class="row">
+<div class="field"><label for="dates">Dates</label><input id="dates" value="14–16 Nov"></div>
+<div class="field"><label for="amt">Lock-in per head (₹)</label><input id="amt" type="number" inputmode="numeric" value="3000"></div>
+</div>
+<div class="row">
+<div class="field"><label for="min">Trip is ON at</label>
+<select id="min"><option>4 people</option><option>5 people</option><option selected>6 people</option><option>7 people</option></select></div>
+<div class="field"><label for="dl">Lock by</label><input id="dl" value="Thu, 9 PM"></div>
+</div>
+<div class="hint">₹3,000 covers each person's share of the villa advance and train tickets. Book 3 weeks out and the villa is about ₹1,100 cheaper per head than a last-week booking.</div>
+<div class="spacer"></div>
+<button class="btn" data-go="2">Create lock-in link</button>
+</section>
+<!-- 2 SHARE -->
+<section class="screen" id="s2" hidden>
+<h2>Drop it in the group</h2>
+<p class="sub">Polls stay. LockIn sits next to the poll and asks for the one thing a poll can't: money.</p>
+<div class="wa" aria-label="WhatsApp group preview">
+<div class="grp">Goa? Gokarna? Anything 🏖️ · 9 members</div>
+<div class="msg poll"><span class="from">Meet</span>Gokarna 14–16 Nov?
+<div class="opt"><span>In 🔥</span><b>8</b></div><div class="opt"><span>Maybe</span><b>1</b></div></div>
+<div class="msg"><span class="from">Rohan</span>100% in this time</div>
+<div class="msg me">8 of you said yes 😅 Lock in ₹3,000 by Thu 9 PM. It's only blocked in your account. If 6 of us don't, nobody pays.
+<div class="card" style="margin-top:8px">
+<div class="top"><b>Gokarna weekend</b><span>14–16 Nov · ON at 6 people</span></div>
+<div class="bot"><span>₹3,000 lock-in · refundable till Thu</span><b style="color:#8A5300">LockIn ›</b></div>
+</div>
+</div>
+</div>
+<div class="spacer"></div>
+<button class="btn" data-go="3">See what Rohan sees</button>
+</section>
+<!-- 3 FRIEND -->
+<section class="screen" id="s3" hidden>
+<div class="trip">
+<span class="k">Meet invited you</span>
+<h3>Gokarna weekend</h3>
+<div class="facts">
+<div><b>14–16</b><small>Nov</small></div>
+<div><b>₹3,000</b><small>lock-in</small></div>
+<div><b id="fLocked">4/6</b><small>locked</small></div>
+</div>
+</div>
+<div class="rules">
+<div class="rule a"><i>✓</i><span><b>Trip happens:</b> your ₹3,000 goes into the villa and trains. No one chases you on Splitwise later.</span></div>
+<div class="rule b"><i>↺</i><span><b>Fewer than 6 by Thu 9 PM:</b> the block is released. The money never left your account.</span></div>
+<div class="rule c"><i>!</i><span><b>You drop out after it's ON:</b> your lock-in covers your share of what's already booked. Pass your spot to someone and you get it back.</span></div>
+</div>
+<div class="spacer"></div>
+<div id="payBox">
+<button class="btn lock" id="pay">Block ₹3,000 with UPI</button>
+<p class="note" style="margin-top:8px">Blocked in your own bank account with a UPI mandate. Debited only if 6 lock in.</p>
+</div>
+<div id="paid" hidden class="center">
+<div class="tick pop">✓</div>
+<h2 style="margin-top:10px">You're locked in</h2>
+<p class="sub" style="margin-top:4px">5 of 6. One more and Gokarna is ON.</p>
+<div style="margin-top:16px"><button class="btn" data-go="4">Back to Meet's view</button></div>
+</div>
+</section>
+<!-- 4 TRACKER -->
+<section class="screen" id="s4" hidden>
+<div class="meter">
+<span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">Gokarna weekend</span>
+<div class="big"><span id="cnt">5</span><small> / 6 locked</small></div>
+<div class="slots" id="slots"></div>
+<div class="clock"><span>Locks Thu 9 PM</span><span id="timer">1d 19h 42m left</span></div>
+</div>
+<div class="contrast">
+<div class="x">Said "In 🔥" on the poll<b>8</b></div>
+<div class="y">Actually put money in<b id="cnt2">5</b></div>
+</div>
+<div class="people" id="people"></div>
+<p class="note" style="margin-top:-6px">Tap Nudge on Aarav to see the trip flip to ON.</p>
+<div class="spacer"></div>
+<button class="btn ghost" id="fail">What if Thu 9 PM passes at 5?</button>
+</section>
+<!-- 5 ON -->
+<section class="screen" id="s5" hidden>
+<div class="on-banner pop">
+<span style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;opacity:.85">6 of 6 locked · Tue 11:40 PM</span>
+<b>Gokarna is ON</b>
+<span>6 blocks debited: ₹18,000 is ready to spend. You haven't fronted a rupee.</span>
+</div>
+<div class="field"><span style="font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)">Book now, while it's 3 weeks out</span></div>
+<label class="stay"><input type="radio" name="stay" checked><span class="nm">Kudle Hilltop Villa · 3BR<small>2 nights · sleeps 8 · advance ₹12,000</small></span><span class="pr">₹21,600</span></label>
+<label class="stay"><input type="radio" name="stay"><span class="nm">Om Beach Cottages · 3 rooms<small>2 nights · advance ₹9,000</small></span><span class="pr">₹18,000</span></label>
+<label class="stay"><input type="checkbox" checked><span class="nm">KSR Bengaluru → Gokarna Rd, Sleeper<small>6 seats · Fri 14 Nov</small></span><span class="pr">₹3,540</span></label>
+<div class="hint">Advance + trains paid from the locked pot: ₹15,540. ₹2,460 stays in the pot for food. The villa balance is split at checkout.</div>
+<div class="scapia"><span class="cardart" aria-hidden="true"></span><span>Pot is paid out on a <b>Scapia virtual card</b>, so the group's travel rewards land with Meet.</span></div>
+<div class="spacer"></div>
+<button class="btn" id="book">Book from the pot · ₹15,540</button>
+</section>
+<!-- 6 BOOKED -->
+<section class="screen" id="s6" hidden>
+<div class="tick pop">✓</div>
+<h2 class="center">Booked. Nobody owes you anything.</h2>
+<p class="sub center" style="margin-top:0">Villa and 6 sleeper seats confirmed for 14 Nov.</p>
+<div class="people">
+<div class="p"><span class="av">₹</span><span class="nm">Paid from the pot<small>Villa advance + trains</small></span><b>₹15,540</b></div>
+<div class="p"><span class="av">◎</span><span class="nm">Left in the pot<small>Food fund, unlocked on the trip</small></span><b>₹2,460</b></div>
+<div class="p"><span class="av">M</span><span class="nm">Fronted by Meet<small>Usually ₹15k+ and a week of reminders</small></span><b style="color:var(--ok)">₹0</b></div>
+</div>
+<div class="hint" id="swapBox"><b>Aarav drops out on Thursday?</b> His ₹3,000 already covers his share, so Meet loses nothing. He can pass his spot to Isha and get it back.
+<div style="margin-top:10px"><button class="btn small" id="swap">Pass Aarav's spot to Isha</button></div></div>
+<div class="spacer"></div>
+<button class="btn ghost" data-go="1">Start over</button>
+</section>
+<!-- 7 FAIL -->
+<section class="screen" id="s7" hidden>
+<h2>Thu 9 PM: 5 of 6 locked</h2>
+<p class="sub">The trip didn't reach 6, so nothing was debited, nothing was booked and nobody lost money.</p>
+<div class="people">
+<div class="p"><span class="av">↺</span><span class="nm">Blocks released<small>5 × ₹3,000 never left anyone's account</small></span><span class="chip ok">₹15,000</span></div>
+<div class="p"><span class="av">M</span><span class="nm">Meet's loss<small>No advance paid on hope</small></span><span class="chip ok">₹0</span></div>
+</div>
+<div class="hint">Meet can relaunch for 5 people at a smaller cottage in one tap. The 5 who locked in carry over.</div>
+<div class="spacer"></div>
+<button class="btn" data-go="4">Back</button>
+</section>
+</main>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+const STEPS=[[1,"Create the plan","New trip","Organiser"],[2,"Share in WhatsApp","Share","Organiser"],[3,"Friend locks in","Rohan's view","Friend"],[4,"Track who's real","Tracker","Organiser"],[5,"Trip is ON","Trip is ON","Organiser"],[6,"Booked from the pot","Booked","Organiser"]];
+let cur=1, locked=4, history=[];
+const people=[["Meet","organiser",true],["Priya","",true],["Kabir","",true],["Sneha","",true],["Rohan","",false],["Aarav","",false],["Isha","said Maybe",false],["Dev","",false]];
+const $=id=>document.getElementById(id);
+const stepsEl=$("steps");
+STEPS.forEach(([n,label])=>{const li=document.createElement("li");const b=document.createElement("button");b.innerHTML=`<span class="n">${n}</span>${label}`;b.onclick=()=>go(n);li.appendChild(b);stepsEl.appendChild(li)});
+function toast(t){const e=$("toast");e.textContent=t;e.classList.add("show");clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove("show"),1800)}
+function renderTracker(){
+$("cnt").textContent=locked;$("cnt2").textContent=locked;
+const s=$("slots");s.innerHTML="";for(let i=0;i<6;i++){const d=document.createElement("div");d.className="slot"+(i<locked?(locked>=6?" done":" on"):"");s.appendChild(d)}
+const box=$("people");box.innerHTML="";
+people.forEach(([n,note,l],i)=>{
+const isLocked=l;
+const row=document.createElement("div");row.className="p";
+row.innerHTML=`<span class="av">${n[0]}</span><span class="nm">${n}<small>${isLocked?"Locked ₹3,000":(note||"Voted In 🔥 · not locked")}</small></span>`;
+if(isLocked){row.innerHTML+=`<span class="chip locked">Locked</span>`}
+else{const b=document.createElement("button");b.className="btn small ghost"+(n==="Aarav"?" pulse":"");b.textContent="Nudge";b.onclick=()=>nudge(i,n,b);row.appendChild(b)}
+box.appendChild(row)});
+}
+function nudge(i,n,b){
+b.disabled=true;b.textContent="Sent";b.classList.remove("pulse");
+const away=6-locked;
+toast(`${n} got: "${locked} of you are locked. Gokarna is ${away} lock-in${away>1?"s":""} away."`);
+if(n==="Aarav"||n==="Rohan"){
+setTimeout(()=>{people[i][2]=true;locked=people.filter(p=>p[2]).length;renderTracker();
+if(locked>=6){toast(`${n} locked in. Gokarna is ON.`);setTimeout(()=>go(5),900)}else toast(`${n} locked in. ${6-locked} to go.`)},1400)}
+}
+function go(n,push=true){
+if(push&&n!==cur)history.push(cur);
+document.querySelectorAll(".screen").forEach(s=>s.hidden=true);
+$("s"+n).hidden=false;cur=n;
+const st=STEPS.find(s=>s[0]===n);
+$("stepno").textContent=st?`${n}/6`:"";
+$("barTitle").textContent=st?st[2]:"Didn't make it";
+const r=$("role");r.textContent=st?st[3]:"Organiser";r.className="role"+(st&&st[3]==="Friend"?" friend":"");
+[...stepsEl.querySelectorAll("button")].forEach((b,i)=>{if(i+1===n)b.setAttribute("aria-current","step");else b.removeAttribute("aria-current")});
+if(n===1){locked=4;people.forEach((p,i)=>p[2]=i<4);$("payBox").hidden=false;$("paid").hidden=true;$("fLocked").textContent="4/6";$("pay").disabled=false;$("pay").textContent="Block ₹3,000 with UPI"}
+if(n===4)renderTracker();
+if(n===6){$("swap").disabled=false;$("swap").textContent="Pass Aarav's spot to Isha"}
+window.scrollTo({top:0});
+}
+document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(+b.dataset.go));
+$("back").onclick=()=>{if(history.length)go(history.pop(),false)};
+$("pay").onclick=()=>{
+const btn=$("pay");btn.disabled=true;btn.textContent="Opening UPI…";
+setTimeout(()=>{people[4][2]=true;locked=5;$("fLocked").textContent="5/6";$("payBox").hidden=true;$("paid").hidden=false},900)};
+$("fail").onclick=()=>go(7);
+$("book").onclick=()=>go(6);
+$("swap").onclick=()=>{const s=$("swap");s.disabled=true;s.textContent="Done";toast("Isha paid ₹3,000 and took the spot. Aarav refunded.")};
+go(1,false);
+</script>
+</body></html>
